@@ -34,6 +34,7 @@ Standardize student identities while preserving every valid submission attempt, 
 ## AS-IS Process
 
 Before automation, the coordinator manually checked and corrected inconsistent student names before the reporting formulas could process the submission data.
+![AS-IS homework submission process](CS01_AS_IS_Homework_Submission.png)
 
 ## TO-BE Process
 
@@ -42,6 +43,7 @@ Google Apps Script standardizes each entered name and compares it with the Stude
 A unique match with a name difference below 15% is assigned the corresponding Student_ID. Ambiguous or uncertain matches are flagged for coordinator review.
 
 Every submission is preserved so that the report can calculate the number of attempts and the highest score.
+![TO-BE automated homework submission process](CS01_TO_BE_Homework_Submission.png)
 
 ## Key Business Rules
 
