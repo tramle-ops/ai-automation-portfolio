@@ -42,7 +42,7 @@ Google Apps Script standardizes each entered name and compares it with the Stude
 
 A unique match with a name difference below 15% is assigned the corresponding Student_ID. Ambiguous or uncertain matches are flagged for coordinator review.
 
-Every submission is preserved so that the report can calculate the number of attempts and the highest score.
+Every raw submission is preserved for traceability. Only valid matched submissions are included in the report, which calculates the number of attempts and the highest score.
 ![TO-BE automated homework submission process](CS01_TO_BE_Homework_Submission.png)
 
 ## Key Business Rules
