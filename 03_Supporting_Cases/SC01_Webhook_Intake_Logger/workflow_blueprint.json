@@ -1,0 +1,487 @@
+{
+    "name": "New scenario",
+    "flow": [
+        {
+            "id": 1,
+            "module": "gateway:CustomWebHook",
+            "version": 1,
+            "parameters": {
+                "hook": 2887555,
+                "maxResults": 1
+            },
+            "filter": null,
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": 0,
+                    "y": 0
+                },
+                "setupValidation": {
+                    "version": 1,
+                    "configuration": "29f277125d49f6d1",
+                    "result": {
+                        "valid": true,
+                        "fields": []
+                    }
+                },
+                "restore": {
+                    "parameters": {
+                        "hook": {
+                            "label": "SC01 Submission Intake",
+                            "data": {
+                                "editable": "true"
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "hook",
+                        "type": "hook:gateway-webhook",
+                        "label": "Webhook",
+                        "required": true
+                    },
+                    {
+                        "name": "maxResults",
+                        "type": "number",
+                        "label": "Maximum number of results"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 2,
+            "module": "google-sheets:addRow",
+            "version": 2,
+            "parameters": {
+                "__IMTCONN__": 11124851
+            },
+            "mapper": {
+                "mode": "select",
+                "insertUnformatted": false,
+                "valueInputOption": "USER_ENTERED",
+                "insertDataOption": "INSERT_ROWS",
+                "from": "drive",
+                "spreadsheetId": "/1PHt_dIkULMb_tq51CdTm36ArBgVhCe2p3sFuaPa5HzY",
+                "sheetId": "Request_Log",
+                "includesHeaders": true,
+                "useColumnHeaders": false,
+                "values": {
+                    "0": "{{now}}",
+                    "1": "{{1.submission_id}}",
+                    "2": "{{1.assignment_id}}",
+                    "3": "{{1.student_name}}",
+                    "4": "{{1.class_name}}",
+                    "5": "{{1.score}}",
+                    "6": "{{1.valid}}"
+                }
+            },
+            "metadata": {
+                "designer": {
+                    "x": 300,
+                    "y": 0
+                },
+                "setupValidation": {
+                    "version": 1,
+                    "configuration": "c1ea44371c93e251",
+                    "result": {
+                        "valid": true,
+                        "fields": []
+                    }
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "Make Academy (thcsxuanphuong2425@gmail.com)",
+                            "data": {
+                                "scoped": "true",
+                                "connection": "google"
+                            }
+                        }
+                    },
+                    "expect": {
+                        "mode": {
+                            "label": "Search by path"
+                        },
+                        "insertUnformatted": {
+                            "mode": "chose"
+                        },
+                        "valueInputOption": {
+                            "mode": "chose",
+                            "label": "User entered"
+                        },
+                        "insertDataOption": {
+                            "mode": "chose",
+                            "label": "Insert rows"
+                        },
+                        "from": {
+                            "label": "My Drive"
+                        },
+                        "spreadsheetId": {
+                            "path": [
+                                "SC01_Webhook_Intake_Log"
+                            ]
+                        },
+                        "sheetId": {
+                            "label": "Request_Log"
+                        },
+                        "includesHeaders": {
+                            "label": "Yes"
+                        },
+                        "useColumnHeaders": {
+                            "label": "No"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:google",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "mode",
+                        "type": "select",
+                        "label": "Search Method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "select",
+                                "fromAll",
+                                "map"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "insertUnformatted",
+                        "type": "boolean",
+                        "label": "Unformatted",
+                        "required": true
+                    },
+                    {
+                        "name": "valueInputOption",
+                        "type": "select",
+                        "label": "Value input option",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "USER_ENTERED",
+                                "RAW"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "insertDataOption",
+                        "type": "select",
+                        "label": "Insert data option",
+                        "validate": {
+                            "enum": [
+                                "INSERT_ROWS",
+                                "OVERWRITE"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "type": "select",
+                        "label": "Drive",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "drive",
+                                "share",
+                                "team"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "spreadsheetId",
+                        "type": "file",
+                        "label": "Spreadsheet Name",
+                        "required": true
+                    },
+                    {
+                        "name": "sheetId",
+                        "type": "select",
+                        "label": "Sheet Name",
+                        "required": true
+                    },
+                    {
+                        "name": "includesHeaders",
+                        "type": "select",
+                        "label": "Table contains headers",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                true,
+                                false
+                            ]
+                        }
+                    },
+                    {
+                        "name": "useColumnHeaders",
+                        "type": "select",
+                        "label": "Use column headers as IDs of the columns",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                true,
+                                false
+                            ]
+                        }
+                    },
+                    {
+                        "name": "values",
+                        "type": "collection",
+                        "label": "Values in columns",
+                        "metadata": [
+                            [
+                                [
+                                    "Received_At",
+                                    "Submission_ID",
+                                    "Assignment_ID",
+                                    "Student_Name",
+                                    "Class",
+                                    "Score",
+                                    "Valid"
+                                ]
+                            ]
+                        ],
+                        "spec": [
+                            {
+                                "name": "0",
+                                "type": "text",
+                                "label": "Received_At (A)"
+                            },
+                            {
+                                "name": "1",
+                                "type": "text",
+                                "label": "Submission_ID (B)"
+                            },
+                            {
+                                "name": "2",
+                                "type": "text",
+                                "label": "Assignment_ID (C)"
+                            },
+                            {
+                                "name": "3",
+                                "type": "text",
+                                "label": "Student_Name (D)"
+                            },
+                            {
+                                "name": "4",
+                                "type": "text",
+                                "label": "Class (E)"
+                            },
+                            {
+                                "name": "5",
+                                "type": "text",
+                                "label": "Score (F)"
+                            },
+                            {
+                                "name": "6",
+                                "type": "text",
+                                "label": "Valid (G)"
+                            },
+                            {
+                                "name": "7",
+                                "type": "text",
+                                "label": "(H)"
+                            },
+                            {
+                                "name": "8",
+                                "type": "text",
+                                "label": "(I)"
+                            },
+                            {
+                                "name": "9",
+                                "type": "text",
+                                "label": "(J)"
+                            },
+                            {
+                                "name": "10",
+                                "type": "text",
+                                "label": "(K)"
+                            },
+                            {
+                                "name": "11",
+                                "type": "text",
+                                "label": "(L)"
+                            },
+                            {
+                                "name": "12",
+                                "type": "text",
+                                "label": "(M)"
+                            },
+                            {
+                                "name": "13",
+                                "type": "text",
+                                "label": "(N)"
+                            },
+                            {
+                                "name": "14",
+                                "type": "text",
+                                "label": "(O)"
+                            },
+                            {
+                                "name": "15",
+                                "type": "text",
+                                "label": "(P)"
+                            },
+                            {
+                                "name": "16",
+                                "type": "text",
+                                "label": "(Q)"
+                            },
+                            {
+                                "name": "17",
+                                "type": "text",
+                                "label": "(R)"
+                            },
+                            {
+                                "name": "18",
+                                "type": "text",
+                                "label": "(S)"
+                            },
+                            {
+                                "name": "19",
+                                "type": "text",
+                                "label": "(T)"
+                            },
+                            {
+                                "name": "20",
+                                "type": "text",
+                                "label": "(U)"
+                            },
+                            {
+                                "name": "21",
+                                "type": "text",
+                                "label": "(V)"
+                            },
+                            {
+                                "name": "22",
+                                "type": "text",
+                                "label": "(W)"
+                            },
+                            {
+                                "name": "23",
+                                "type": "text",
+                                "label": "(X)"
+                            },
+                            {
+                                "name": "24",
+                                "type": "text",
+                                "label": "(Y)"
+                            },
+                            {
+                                "name": "25",
+                                "type": "text",
+                                "label": "(Z)"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "id": 3,
+            "module": "gateway:WebhookRespond",
+            "version": 1,
+            "parameters": {},
+            "mapper": {
+                "status": "200",
+                "body": "{\r\n  \"status\": \"received\",\r\n  \"message\": \"Submission logged successfully\"\r\n}",
+                "headers": []
+            },
+            "metadata": {
+                "designer": {
+                    "x": 600,
+                    "y": 0
+                },
+                "setupValidation": {
+                    "version": 1,
+                    "configuration": "d489ef77f4846763",
+                    "result": {
+                        "valid": true,
+                        "fields": []
+                    }
+                },
+                "restore": {
+                    "expect": {
+                        "headers": {
+                            "mode": "chose"
+                        }
+                    }
+                },
+                "expect": [
+                    {
+                        "name": "status",
+                        "type": "uinteger",
+                        "label": "Status",
+                        "validate": {
+                            "min": 100
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "body",
+                        "type": "any",
+                        "label": "Body"
+                    },
+                    {
+                        "name": "headers",
+                        "type": "array",
+                        "label": "Custom headers",
+                        "validate": {
+                            "maxItems": 16
+                        },
+                        "spec": [
+                            {
+                                "name": "key",
+                                "label": "Key",
+                                "type": "text",
+                                "required": true,
+                                "validate": {
+                                    "max": 256
+                                }
+                            },
+                            {
+                                "name": "value",
+                                "label": "Value",
+                                "type": "text",
+                                "required": true,
+                                "validate": {
+                                    "max": 4096
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ],
+    "metadata": {
+        "instant": true,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "us2.make.com",
+        "notes": []
+    }
+}
