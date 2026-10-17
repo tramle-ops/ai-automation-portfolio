@@ -1,0 +1,908 @@
+{
+  "name": "SC03_v4_Scheduled_Sheet_Processor",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9da0043b-d9c8-4ad3-a1d9-dfe65fda0b77",
+              "leftValue": "={{ $json.assigned_students }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "783f3c9d-4e2e-461f-947d-71d948c3e372",
+              "leftValue": "={{ $json.completed_students }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "881cd28f-955a-4018-9a50-a8be5caf4690",
+              "leftValue": "={{ $json.completed_students }}",
+              "rightValue": "={{ $json.assigned_students }}",
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        -16
+      ],
+      "id": "e2bc6804-d684-4fa9-8597-e1a0fea7f586",
+      "name": "IF - Valid Student Counts"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8330c160-afe0-4581-97c1-a19e47fab6aa",
+              "name": "kpi_status",
+              "value": "INVALID_DATA",
+              "type": "string"
+            },
+            {
+              "id": "c16894a3-d42e-4652-b58f-f58c5500162c",
+              "name": "review_reason",
+              "value": "ASSIGNED_STUDENTS_MUST_BE_GREATER_THAN_ZERO",
+              "type": "string"
+            },
+            {
+              "id": "6b38c157-dd78-4194-a040-df4ef05f3ad9",
+              "name": "processed_at",
+              "value": "={{$now.toISO()}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        672,
+        80
+      ],
+      "id": "b4953228-515f-4a4e-9872-16c84f79add8",
+      "name": "Mark Invalid Data"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dfaed836-70b0-472e-aa75-530e19c714ba",
+              "name": "incomplete_students",
+              "value": "={{ $json.assigned_students-$json.completed_students }}",
+              "type": "number"
+            },
+            {
+              "id": "cb3ca995-7b5f-4594-94c6-a4404e3c5832",
+              "name": "completion_rate",
+              "value": "={{ $json.completed_students/$json.assigned_students*100 }}",
+              "type": "number"
+            },
+            {
+              "id": "86da43de-daad-4fdb-99cb-3239e84865d4",
+              "name": "completion_rate_display",
+              "value": "={{ ($json.completed_students/$json.assigned_students*100).toFixed(0)+'%' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        672,
+        -144
+      ],
+      "id": "a845f25e-501a-4746-892b-b2a03574dc0d",
+      "name": "Calculate KPI Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.completion_rate }}",
+                    "rightValue": 80,
+                    "operator": {
+                      "type": "number",
+                      "operation": "lt"
+                    },
+                    "id": "8b010807-e75e-4ca7-ad38-c3a579ec9929"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "AT_RISK"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "71d13842-b52c-464b-8267-fb18571b1348",
+                    "leftValue": "={{ $json.completion_rate>=80&&$json.completion_rate<90}}",
+                    "rightValue": 80,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "WATCH"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "372fcfc1-258b-4904-972c-03a9eb51e57e",
+                    "leftValue": "={{ $json.completion_rate }}",
+                    "rightValue": 90,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gte"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ON_TRACK"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        -176
+      ],
+      "id": "98dedbcf-94e2-4c5b-b422-37e652fa1f56",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4d162f46-575d-44b9-a3a1-5eb04576b833",
+              "name": "kpi_status",
+              "value": "AT_RISK",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1120,
+        -320
+      ],
+      "id": "4ed3c384-fb9e-483f-92a6-0a650afba713",
+      "name": "Mark AT_RISK"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "edab22d2-fce0-4fc7-bdf0-b85dc1156b4b",
+              "name": "kpi_status",
+              "value": "WATCH",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1120,
+        -128
+      ],
+      "id": "be37cf44-834a-4808-88ad-907bd19d180a",
+      "name": "Mark WATCH"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b6d85f69-3ff9-4ee4-823d-1520c86a62f3",
+              "name": "kpi_status",
+              "value": "ON_TRACK",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1120,
+        80
+      ],
+      "id": "d668caa3-51fb-4a06-939d-b58500ccf937",
+      "name": "Mark ON_TRACK"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1344,
+        -224
+      ],
+      "id": "b76abeb1-ec33-4e79-b240-8f8d60d95c46",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1568,
+        -208
+      ],
+      "id": "83ab087e-d66a-4dad-92d6-016d48d59ef7",
+      "name": "Loop Through Valid Classes"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "48450fb4-1ec9-44c2-93a7-132dc140c925",
+              "name": "ready_for_report",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "1875e496-0ad4-487b-92a4-43fc7bcbbdf3",
+              "name": "processed_at",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1792,
+        -208
+      ],
+      "id": "15ec65ee-c06c-4d22-b8f2-9e16cda90ea1",
+      "name": "Prepare Report Row"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        80
+      ],
+      "id": "a25aa060-ef82-4acd-b4f9-13660c43d85b",
+      "name": "Manual Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/REPLACE_WITH_SPREADSHEET_ID/edit?gid=729887910#gid=729887910",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "KPI_Input",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/REPLACE_WITH_SPREADSHEET_ID/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        -16
+      ],
+      "id": "5628d5b9-8432-42ff-959e-402f1926ca8f",
+      "name": "Read KPI Input",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/REPLACE_WITH_SPREADSHEET_ID/edit?gid=729887910#gid=729887910",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 917199661,
+          "mode": "list",
+          "cachedResultName": "KPI_Report",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/REPLACE_WITH_SPREADSHEET_ID/edit#gid=917199661"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "report_date",
+              "displayName": "report_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "class_id",
+              "displayName": "class_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "class_name",
+              "displayName": "class_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "assignment_id",
+              "displayName": "assignment_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "assigned_students",
+              "displayName": "assigned_students",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "completed_students",
+              "displayName": "completed_students",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "incomplete_students",
+              "displayName": "incomplete_students",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "completion_rate",
+              "displayName": "completion_rate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "completion_rate_display",
+              "displayName": "completion_rate_display",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "kpi_status",
+              "displayName": "kpi_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ready_for_report",
+              "displayName": "ready_for_report",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "processed_at",
+              "displayName": "processed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        -208
+      ],
+      "id": "ccbca9cb-8f05-4853-8f93-d621522485bc",
+      "name": "Append KPI Report Row",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/REPLACE_WITH_SPREADSHEET_ID/edit?gid=917199661#gid=917199661",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 729887910,
+          "mode": "list",
+          "cachedResultName": "Invalid_Records",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/REPLACE_WITH_SPREADSHEET_ID/edit#gid=729887910"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "report_date",
+              "displayName": "report_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "class_id",
+              "displayName": "class_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "class_name",
+              "displayName": "class_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "assignment_id",
+              "displayName": "assignment_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "assigned_students",
+              "displayName": "assigned_students",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "completed_students",
+              "displayName": "completed_students",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "kpi_status",
+              "displayName": "kpi_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "review_reason",
+              "displayName": "review_reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "processed_at",
+              "displayName": "processed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        80
+      ],
+      "id": "e85d0a9c-8224-4a10-9ad1-3af4121a47e1",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                5
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        -112
+      ],
+      "id": "344a190e-b801-4eb9-8a9e-f9f2b14f907d",
+      "name": "Weekly Friday Schedule"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "IF - Valid Student Counts": {
+      "main": [
+        [
+          {
+            "node": "Calculate KPI Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Invalid Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate KPI Fields": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Mark AT_RISK",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark WATCH",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark ON_TRACK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark AT_RISK": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark WATCH": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Mark ON_TRACK": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Valid Classes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Through Valid Classes": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Prepare Report Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Report Row": {
+      "main": [
+        [
+          {
+            "node": "Append KPI Report Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read KPI Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read KPI Input": {
+      "main": [
+        [
+          {
+            "node": "IF - Valid Student Counts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append KPI Report Row": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Valid Classes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Invalid Data": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Friday Schedule": {
+      "main": [
+        [
+          {
+            "node": "Read KPI Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timezone": "Asia/Ho_Chi_Minh"
+  },
+  "versionId": "5a36df8b-17a2-4594-96c9-634575ba9f28",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "REDACTED"
+  },
+  "nodeGroups": [],
+  "id": "AzLnwc3cm2UEuMa1",
+  "tags": [
+    {
+      "updatedAt": "2026-10-14T07:35:44.797Z",
+      "createdAt": "2026-10-14T07:35:44.797Z",
+      "id": "ntTi2p9CiaoHwWjP",
+      "name": "n8n101"
+    }
+  ]
+}
