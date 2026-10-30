@@ -1,0 +1,1891 @@
+{
+  "name": "SC05_Route_And_Register_Ticket",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_GOOGLE_SHEET_URL",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Ticket_Register"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $json.ticket_id }}",
+            "batch_id": "={{ $json.batch_id }}",
+            "requester_email": "={{ $json.normalized_email }}",
+            "subject": "={{ $json.normalized_subject }}",
+            "normalized_priority": "={{ $json.normalized_priority }}",
+            "queue": "={{ $json.queue }}",
+            "owner_team": "={{ $json.owner_team }}",
+            "next_action": "={{ $json.next_action }}",
+            "processing_status": "={{ $json.processing_status }}",
+            "sla_hours": "={{ $json.sla_hours ?? '' }}",
+            "sla_due_at_utc": "={{ $json.sla_due_at_utc ?? '' }}",
+            "contact_route": "INTERNAL_FOLLOW_UP",
+            "logged_at_utc": "={{$now.toUTC().toISO()}}"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "displayName": "batch_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "requester_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "normalized_priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "queue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "owner_team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "next_action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "processing_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "sla_hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "sla_due_at_utc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "contact_route",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "logged_at_utc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        816
+      ],
+      "name": "UpsertInternalFollowUp"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "queue",
+              "value": "NEEDS_INFORMATION",
+              "type": "string"
+            },
+            {
+              "name": "source_ticket_id",
+              "value": "={{$json.ticket_id}}",
+              "type": "string"
+            },
+            {
+              "name": "batch_id",
+              "value": "={{ $json.batch_id }}",
+              "type": "string"
+            },
+            {
+              "name": "owner_team",
+              "value": "INTAKE_TEAM",
+              "type": "string"
+            },
+            {
+              "name": "next_action",
+              "value": "CHECK_CONTACT_METHOD",
+              "type": "string"
+            },
+            {
+              "name": "processing_status",
+              "value": "PENDING_CONTACT_REVIEW",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1120,
+        640
+      ],
+      "name": "PrepareNeedsInfo"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.normalized_email }}",
+              "rightValue": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1344,
+        640
+      ],
+      "name": "If_HasSendableEmail"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_GOOGLE_SHEET_URL",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 232797372,
+          "mode": "list",
+          "cachedResultName": "Email_Delivery_Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $('LoopSendableEmail').item.json.ticket_id }}",
+            "email_send_status": "SENT",
+            "email_sent_at": "={{ $now.toUTC().toISO() }}",
+            "email_message_id": "={{ $json.id }}",
+            "last_error": "={{ '' }}"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "displayName": "batch_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "displayName": "delivery_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "displayName": "recipient_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "displayName": "email_send_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "attempted_at_utc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "displayName": "email_sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "email_message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "last_error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3136,
+        592
+      ],
+      "name": "MarkEmailSent"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.recipient_email }}",
+        "subject": "={{'Additional information required - Ticket ' +  $json.ticket_id }}",
+        "emailType": "text",
+        "message": "=Hello,\nThank you for contacting our support team.  \nWe received your request with Ticket ID: {{ $json.ticket_id }}. \nTo continue processing your request, please reply with a clear description of the issue or the assistance you need.  \nOnce we receive the missing information, our team will continue handling your ticket.  \nBest regards, \nSupport Team",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2912,
+        528
+      ],
+      "name": "Send a message",
+      "webhookId": "bb487a09-f89e-4a32-99ec-927b0f924796"
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2016,
+        528
+      ],
+      "name": "LoopSendableEmail"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.email_send_status }}",
+              "rightValue": "SENT",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "leftValue": "={{ $json.email_send_status }}",
+              "rightValue": "SENDING",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2464,
+        528
+      ],
+      "name": "If_EmailAlreadySent"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_GOOGLE_SHEET_URL",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 232797372,
+          "mode": "list",
+          "cachedResultName": "Email_Delivery_Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $('LoopSendableEmail').item.json.ticket_id }}",
+            "batch_id": "={{ $('LoopSendableEmail').item.json.batch_id }}",
+            "delivery_type": "REQUEST_INFO_EMAIL",
+            "recipient_email": "={{ $('LoopSendableEmail').item.json.requester_email }}",
+            "email_send_status": "SENDING",
+            "attempted_at_utc": "={{ $now.toUTC().toISO() }}",
+            "email_sent_at": "={{ '' }}",
+            "last_error": "={{ '' }}",
+            "email_message_id": "={{ '' }}"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "displayName": "batch_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "delivery_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "recipient_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "email_send_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "attempted_at_utc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "email_sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "email_message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "last_error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2688,
+        528
+      ],
+      "name": "MarkEmailSending"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "processing_status",
+              "value": "WAITING_FOR_CUSTOMER",
+              "type": "string"
+            },
+            {
+              "name": "next_action",
+              "value": "AWAIT_CUSTOMER_RESPONSE",
+              "type": "string"
+            },
+            {
+              "name": "contact_route",
+              "value": "REQUESTER_EMAIL",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1568,
+        528
+      ],
+      "name": "PrepareCustomerFollowUp"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.has_required_information }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        448
+      ],
+      "name": "IF — Has Required Information"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_GOOGLE_SHEET_URL",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 232797372,
+          "mode": "list",
+          "cachedResultName": "Email_Delivery_Log"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "ticket_id",
+              "lookupValue": "={{ $json.ticket_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2240,
+        448
+      ],
+      "name": "LookupEmailDelivery",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "queue",
+              "value": "REVIEW_REQUIRED",
+              "type": "string"
+            },
+            {
+              "name": "source_ticket_id",
+              "value": "={{ $json.ticket_id }}",
+              "type": "string"
+            },
+            {
+              "name": "batch_id",
+              "value": "={{ $json.batch_id }}",
+              "type": "string"
+            },
+            {
+              "name": "owner_team",
+              "value": "TRIAGE_TEAM",
+              "type": "string"
+            },
+            {
+              "name": "next_action",
+              "value": "REQUEST_HUMAN_REVIEW",
+              "type": "string"
+            },
+            {
+              "name": "processing_status",
+              "value": "PENDING_HUMAN_REVIEW",
+              "type": "string"
+            },
+            {
+              "name": "sla_hours",
+              "value": 1,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1568,
+        208
+      ],
+      "name": "PrepareReviewTask"
+    },
+    {
+      "parameters": {
+        "operation": "addToDate",
+        "magnitude": "={{$now.toUTC().toISO()}}",
+        "timeUnit": "hours",
+        "duration": "={{ $json.sla_hours }}",
+        "outputFieldName": "sla_due_at_utc",
+        "options": {
+          "includeInputFields": true
+        }
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        208
+      ],
+      "name": "SetReviewSLADue"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_GOOGLE_SHEET_URL",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Ticket_Register"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $json.ticket_id }}",
+            "batch_id": "={{ $json.batch_id }}",
+            "requester_email": "={{ $json.normalized_email }}",
+            "subject": "={{ $json.normalized_subject }}",
+            "normalized_priority": "={{ $json.normalized_priority }}",
+            "queue": "={{ $json.queue }}",
+            "owner_team": "={{ $json.owner_team }}",
+            "next_action": "={{ $json.next_action }}",
+            "processing_status": "={{ $json.processing_status }}",
+            "sla_hours": "={{ $json.sla_hours }}",
+            "sla_due_at_utc": "={{ $json.sla_due_at_utc }}",
+            "contact_route": "INTERNAL_QUEUE",
+            "logged_at_utc": "={{$now.toUTC().toISO()}}"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "displayName": "batch_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "requester_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "normalized_priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "queue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "owner_team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "next_action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "processing_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "sla_hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "sla_due_at_utc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "contact_route",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "logged_at_utc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        208
+      ],
+      "name": "UpsertReviewTicketRegister"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        192
+      ],
+      "name": "RoutingComplete"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "queue",
+              "value": "STANDARD_QUEUE",
+              "type": "string"
+            },
+            {
+              "name": "source_ticket_id",
+              "value": "={{ $json.ticket_id }}",
+              "type": "string"
+            },
+            {
+              "name": "batch_id",
+              "value": "={{ $json.batch_id }}",
+              "type": "string"
+            },
+            {
+              "name": "owner_team",
+              "value": "STANDARD_SUPPORT",
+              "type": "string"
+            },
+            {
+              "name": "next_action",
+              "value": "ADD_TO_STANDARD_QUEUE",
+              "type": "string"
+            },
+            {
+              "name": "processing_status",
+              "value": "READY_FOR_DISPATCH",
+              "type": "string"
+            },
+            {
+              "name": "sla_hours",
+              "value": 24,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1568,
+        16
+      ],
+      "name": "PrepareStandardDispatch"
+    },
+    {
+      "parameters": {
+        "operation": "addToDate",
+        "magnitude": "={{$now.toUTC().toISO()}}",
+        "timeUnit": "hours",
+        "duration": "={{ $json.sla_hours }}",
+        "outputFieldName": "sla_due_at_utc",
+        "options": {
+          "includeInputFields": true
+        }
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        16
+      ],
+      "name": "SetStandardSLADue"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_GOOGLE_SHEET_URL",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Ticket_Register"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $json.ticket_id }}",
+            "batch_id": "={{ $json.batch_id }}",
+            "requester_email": "={{ $json.normalized_email }}",
+            "subject": "={{ $json.normalized_subject }}",
+            "normalized_priority": "={{ $json.normalized_priority }}",
+            "queue": "={{ $json.queue }}",
+            "owner_team": "={{ $json.owner_team }}",
+            "next_action": "={{ $json.next_action }}",
+            "processing_status": "={{ $json.processing_status }}",
+            "sla_hours": "={{ $json.sla_hours }}",
+            "sla_due_at_utc": "={{ $json.sla_due_at_utc }}",
+            "contact_route": "INTERNAL_QUEUE",
+            "logged_at_utc": "={{$now.toUTC().toISO()}}"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "displayName": "batch_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "requester_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "normalized_priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "queue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "owner_team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "next_action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "processing_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "sla_hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "sla_due_at_utc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "contact_route",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "logged_at_utc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        16
+      ],
+      "name": "UpsertStandardTicketRegister"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.normalized_priority }}",
+                    "rightValue": "high",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Urgent_queue"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.normalized_priority }}",
+                    "rightValue": "normal",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Standard_queue"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Review_Required"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1344,
+        0
+      ],
+      "name": "Switch-Route by Priority"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "queue",
+              "value": "URGENT_QUEUE",
+              "type": "string"
+            },
+            {
+              "name": "source_ticket_id",
+              "value": "={{ $json.ticket_id }}",
+              "type": "string"
+            },
+            {
+              "name": "batch_id",
+              "value": "={{ $json.batch_id }}",
+              "type": "string"
+            },
+            {
+              "name": "owner_team",
+              "value": "URGENT_SUPPORT",
+              "type": "string"
+            },
+            {
+              "name": "next_action",
+              "value": "NOTIFY_URGENT_SUPPORT",
+              "type": "string"
+            },
+            {
+              "name": "processing_status",
+              "value": "READY_FOR_DISPATCH",
+              "type": "string"
+            },
+            {
+              "name": "sla_hours",
+              "value": 4,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1568,
+        -176
+      ],
+      "name": "PrepareUrgentDispatch"
+    },
+    {
+      "parameters": {
+        "operation": "addToDate",
+        "magnitude": "={{$now.toUTC().toISO()}}",
+        "timeUnit": "hours",
+        "duration": "={{ $json.sla_hours }}",
+        "outputFieldName": "sla_due_at_utc",
+        "options": {
+          "includeInputFields": true
+        }
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        -176
+      ],
+      "name": "SetUrgentSLADue"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_GOOGLE_SHEET_URL",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Ticket_Register"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $json.ticket_id }}",
+            "batch_id": "={{ $json.batch_id }}",
+            "requester_email": "={{ $json.normalized_email }}",
+            "subject": "={{ $json.normalized_subject }}",
+            "normalized_priority": "={{ $json.normalized_priority }}",
+            "queue": "={{ $json.queue }}",
+            "owner_team": "={{ $json.owner_team }}",
+            "next_action": "={{ $json.next_action }}",
+            "processing_status": "={{ $json.processing_status }}",
+            "sla_hours": "={{ $json.sla_hours }}",
+            "sla_due_at_utc": "={{ $json.sla_due_at_utc }}",
+            "contact_route": "INTERNAL_QUEUE",
+            "logged_at_utc": "={{$now.toUTC().toISO()}}"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "displayName": "batch_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "requester_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "normalized_priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "queue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "owner_team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "next_action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "processing_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "sla_hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "sla_due_at_utc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "contact_route",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "logged_at_utc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        -176
+      ],
+      "name": "UpsertUrgentTicketRegister"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "ticket_id"
+            },
+            {
+              "name": "batch_id"
+            },
+            {
+              "name": "normalized_email"
+            },
+            {
+              "name": "normalized_subject"
+            },
+            {
+              "name": "normalized_priority"
+            },
+            {
+              "name": "has_required_information",
+              "type": "boolean"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        688,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_GOOGLE_SHEET_URL",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Ticket_Register"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticket_id": "={{ $json.ticket_id }}",
+            "batch_id": "={{ $json.batch_id }}",
+            "requester_email": "={{ $json.normalized_email }}",
+            "subject": "={{ $json.normalized_subject }}",
+            "normalized_priority": "={{ $json.normalized_priority }}",
+            "queue": "={{ $json.queue }}",
+            "owner_team": "={{ $json.owner_team }}",
+            "next_action": "={{ $json.next_action }}",
+            "processing_status": "={{ $json.processing_status }}",
+            "sla_hours": "={{ $json.sla_hours ?? '' }}",
+            "sla_due_at_utc": "={{ $json.sla_due_at_utc ?? '' }}",
+            "contact_route": "={{ $json.contact_route }}",
+            "logged_at_utc": "={{$now.toUTC().toISO()}}"
+          },
+          "matchingColumns": [
+            "ticket_id"
+          ],
+          "schema": [
+            {
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "displayName": "batch_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "requester_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "normalized_priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "queue",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "owner_team",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "next_action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "processing_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "sla_hours",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "sla_due_at_utc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "contact_route",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "displayName": "logged_at_utc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1792,
+        528
+      ],
+      "name": "UpsertNeedsInformationEmailTicketRegister"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "IF — Has Required Information": {
+      "main": [
+        [
+          {
+            "node": "Switch-Route by Priority",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PrepareNeedsInfo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch-Route by Priority": {
+      "main": [
+        [
+          {
+            "node": "PrepareUrgentDispatch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PrepareStandardDispatch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PrepareReviewTask",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PrepareUrgentDispatch": {
+      "main": [
+        [
+          {
+            "node": "SetUrgentSLADue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PrepareStandardDispatch": {
+      "main": [
+        [
+          {
+            "node": "SetStandardSLADue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PrepareReviewTask": {
+      "main": [
+        [
+          {
+            "node": "SetReviewSLADue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PrepareNeedsInfo": {
+      "main": [
+        [
+          {
+            "node": "If_HasSendableEmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If_HasSendableEmail": {
+      "main": [
+        [
+          {
+            "node": "PrepareCustomerFollowUp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "UpsertInternalFollowUp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "MarkEmailSent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LoopSendableEmail": {
+      "main": [
+        [
+          {
+            "node": "RoutingComplete",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LookupEmailDelivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LookupEmailDelivery": {
+      "main": [
+        [
+          {
+            "node": "If_EmailAlreadySent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If_EmailAlreadySent": {
+      "main": [
+        [
+          {
+            "node": "LoopSendableEmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MarkEmailSending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MarkEmailSending": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MarkEmailSent": {
+      "main": [
+        [
+          {
+            "node": "LoopSendableEmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetUrgentSLADue": {
+      "main": [
+        [
+          {
+            "node": "UpsertUrgentTicketRegister",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetStandardSLADue": {
+      "main": [
+        [
+          {
+            "node": "UpsertStandardTicketRegister",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetReviewSLADue": {
+      "main": [
+        [
+          {
+            "node": "UpsertReviewTicketRegister",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PrepareCustomerFollowUp": {
+      "main": [
+        [
+          {
+            "node": "UpsertNeedsInformationEmailTicketRegister",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpsertUrgentTicketRegister": {
+      "main": [
+        [
+          {
+            "node": "RoutingComplete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpsertStandardTicketRegister": {
+      "main": [
+        [
+          {
+            "node": "RoutingComplete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpsertReviewTicketRegister": {
+      "main": [
+        [
+          {
+            "node": "RoutingComplete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpsertInternalFollowUp": {
+      "main": [
+        [
+          {
+            "node": "RoutingComplete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "IF — Has Required Information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpsertNeedsInformationEmailTicketRegister": {
+      "main": [
+        [
+          {
+            "node": "LoopSendableEmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Etc/UTC",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "nodeGroups": [],
+  "tags": []
+}

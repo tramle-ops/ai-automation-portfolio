@@ -1,0 +1,205 @@
+{
+  "name": "SC05_Service_Ticket_Intake",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        320
+      ],
+      "name": "ManualTrigger"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"batch_id\": \"BATCH-001\",\n  \"tickets\": [\n    {\n      \"ticket_id\": \"T-001\",\n      \"requester\": {\"email\": \"mai@example.com\"},\n      \"subject\": \"Cannot access service\",\n      \"priority\": \"high\"\n    },\n    {\n      \"ticket_id\": \"T-002\",\n      \"requester\": {\"email\": \"nam@example.com\"},\n      \"subject\": \"Need invoice copy\",\n      \"priority\": \"normal\"\n    },\n    {\n      \"ticket_id\": \"T-003\",\n      \"requester\": {\"email\": \"\"},\n      \"subject\": \"Change booking\",\n      \"priority\": \"normal\"\n    },\n    {\n      \"ticket_id\": \"T-004\",\n      \"requester\": {\"email\": \"linh@example.com\"},\n      \"subject\": \"\",\n      \"priority\": \"high\"\n    },\n     {\n      \"ticket_id\": \"T-005\",\n      \"requester\": {\"email\": \"linh05@example.com\"},\n      \"subject\": \"Need instruction\",\n      \"priority\": \"critical\"\n    },\n    {\n      \"ticket_id\": \"T-006\",\n      \"requester\": {\"email\": \"linh06@example.com\"},\n      \"subject\": \"Defective product\",\n      \"priority\": \"\"\n    },\n    {\n      \"ticket_id\": \"T-007\",\n      \"requester\": {\"email\": \"   \"},\n      \"subject\": \"Unable to make payment\",\n      \"priority\": \"high\"\n    },\n     {\n      \"ticket_id\": \"T-008\",\n      \"requester\": {},\n      \"subject\": \"Cannot access service\",\n      \"priority\": \"high\"\n    },\n    {\n  \"ticket_id\": \"T-009\",\n  \"subject\": \"Cannot update booking\",\n  \"priority\": \"high\"\n},\n{\n  \"ticket_id\": \"T-010\",\n  \"requester\": {\"email\": null},\n  \"subject\": \"Need service details\",\n  \"priority\": \"normal\"\n},\n{\n  \"ticket_id\": \"T-011\",\n  \"requester\": {\"email\": 12345},\n  \"subject\": \"Payment question\",\n  \"priority\": \"high\"\n},\n{\n  \"ticket_id\": \"T-012\",\n  \"requester\": {\"email\": \"  MAI@example.com  \"},\n  \"subject\": \"  Cannot access service  \",\n  \"priority\": \" HIGH \"\n},\n{\n  \"ticket_id\": \"T-013\",\n  \"requester\": {\"email\": \"demo13@example.com\"},\n  \"subject\": \"   \",\n  \"priority\": \"high\"\n},\n{\n  \"ticket_id\": \"T-014\",\n  \"requester\": {\"email\": \"demo14@example.com\"},\n  \"subject\": null,\n  \"priority\": \"normal\"\n},\n{\n  \"ticket_id\": \"T-015\",\n  \"requester\": {\"email\": \"demo15@example.com\"},\n  \"subject\": 12345,\n  \"priority\": \"normal\"\n},\n{\n  \"ticket_id\": \"T-016\",\n  \"requester\": {\"email\": \"\"},\n  \"subject\": 12345,\n  \"priority\": \"normal\"\n}\n    \n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        320
+      ],
+      "name": "Inputdata"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "tickets",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        320
+      ],
+      "name": "SplitOutTickets"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const normalizeText = (value) => {\n  if (typeof value !== 'string') return '';\n  return value.trim().replace(/\\s+/g,' ')\n};\nconst email = normalizeText($json.requester?.email).toLowerCase();\nconst subject = normalizeText($json.subject);\nconst priority = normalizeText($json.priority).toLowerCase();\nreturn {\n  json: {\n    ...$json,\n    normalized_email: email,\n    normalized_subject: subject,\n    normalized_priority: priority,\n    has_required_information: email !== '' && subject !== ''\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        320
+      ],
+      "name": "NormalizeTickets"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "SC05_Route_And_Register_Ticket"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "has_required_information": "={{ $json.has_required_information }}",
+            "ticket_id": "={{ $json.ticket_id }}",
+            "normalized_email": "={{ $json.normalized_email }}",
+            "normalized_subject": "={{ $json.normalized_subject }}",
+            "normalized_priority": "={{ $json.normalized_priority }}",
+            "batch_id": "={{ $('Inputdata').first().json.batch_id }}"
+          },
+          "matchingColumns": [
+            "has_required_information",
+            "ticket_id",
+            "batch_id_firstItem"
+          ],
+          "schema": [
+            {
+              "displayName": "ticket_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "displayName": "batch_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "displayName": "normalized_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "displayName": "normalized_subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "displayName": "normalized_priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "displayName": "has_required_information",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        896,
+        320
+      ],
+      "name": "Call SC05_Route_And_Register_Ticket"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "ManualTrigger": {
+      "main": [
+        [
+          {
+            "node": "Inputdata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inputdata": {
+      "main": [
+        [
+          {
+            "node": "SplitOutTickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitOutTickets": {
+      "main": [
+        [
+          {
+            "node": "NormalizeTickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NormalizeTickets": {
+      "main": [
+        [
+          {
+            "node": "Call SC05_Route_And_Register_Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Etc/UTC",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "nodeGroups": [],
+  "tags": []
+}

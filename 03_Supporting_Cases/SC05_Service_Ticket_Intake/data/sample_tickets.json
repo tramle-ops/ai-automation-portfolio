@@ -1,0 +1,101 @@
+{
+  "batch_id": "BATCH-001",
+  "tickets": [
+    {
+      "ticket_id": "T-001",
+      "requester": {"email": "mai@example.com"},
+      "subject": "Cannot access service",
+      "priority": "high"
+    },
+    {
+      "ticket_id": "T-002",
+      "requester": {"email": "nam@example.com"},
+      "subject": "Need invoice copy",
+      "priority": "normal"
+    },
+    {
+      "ticket_id": "T-003",
+      "requester": {"email": ""},
+      "subject": "Change booking",
+      "priority": "normal"
+    },
+    {
+      "ticket_id": "T-004",
+      "requester": {"email": "linh@example.com"},
+      "subject": "",
+      "priority": "high"
+    },
+     {
+      "ticket_id": "T-005",
+      "requester": {"email": "linh05@example.com"},
+      "subject": "Need instruction",
+      "priority": "critical"
+    },
+    {
+      "ticket_id": "T-006",
+      "requester": {"email": "linh06@example.com"},
+      "subject": "Defective product",
+      "priority": ""
+    },
+    {
+      "ticket_id": "T-007",
+      "requester": {"email": "   "},
+      "subject": "Unable to make payment",
+      "priority": "high"
+    },
+     {
+      "ticket_id": "T-008",
+      "requester": {},
+      "subject": "Cannot access service",
+      "priority": "high"
+    },
+    {
+  "ticket_id": "T-009",
+  "subject": "Cannot update booking",
+  "priority": "high"
+},
+{
+  "ticket_id": "T-010",
+  "requester": {"email": null},
+  "subject": "Need service details",
+  "priority": "normal"
+},
+{
+  "ticket_id": "T-011",
+  "requester": {"email": 12345},
+  "subject": "Payment question",
+  "priority": "high"
+},
+{
+  "ticket_id": "T-012",
+  "requester": {"email": "  MAI@example.com  "},
+  "subject": "  Cannot access service  ",
+  "priority": " HIGH "
+},
+{
+  "ticket_id": "T-013",
+  "requester": {"email": "demo13@example.com"},
+  "subject": "   ",
+  "priority": "high"
+},
+{
+  "ticket_id": "T-014",
+  "requester": {"email": "demo14@example.com"},
+  "subject": null,
+  "priority": "normal"
+},
+{
+  "ticket_id": "T-015",
+  "requester": {"email": "demo15@example.com"},
+  "subject": 12345,
+  "priority": "normal"
+},
+{
+  "ticket_id": "T-016",
+  "requester": {"email": ""},
+  "subject": 12345,
+  "priority": "normal"
+}
+    
+  ]
+}
