@@ -41,9 +41,7 @@ The full branch criteria and acceptance evidence are in [docs/SC04_Test_Plan.md]
 │   ├── RUNBOOK.md
 │   ├── report_formulas.md
 │   ├── SC04_Test_Plan.md
-│   ├── as_is_map.drawio
 │   ├── as_is_map.png
-│   ├── to_be_map.drawio
 │   └── to_be_map.png
 └── evidence/
 ```
